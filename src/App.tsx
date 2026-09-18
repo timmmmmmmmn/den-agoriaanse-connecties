@@ -156,307 +156,356 @@ export default function App() {
   }
 
   return (
-    <div style={styles.appContainer}>
-      <header style={styles.header}>
-        <div style={styles.logo} onClick={() => window.location.href = '/'}>
-          DEN AGORIAANSE CONNECTIES
-        </div>
-      </header>
+    <>
+      {/* CSS Reset om witteranden in de hoeken van de browser definitief te slopen */}
+      <style>{`
+        * { box-sizing: border-box; }
+        html, body, #root {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          min-height: 100vh !important;
+          background-color: #e2e8f0;
+        }
+      `}</style>
 
-      <main style={styles.mainContent}>
-        
-        {/* --- MODUS 1: MAKER --- */}
-        {mode === 'create' && (
-          <div style={styles.cardContainer}>
-            <h2 style={styles.sectionTitle}>Maak een Nieuwe Puzzel</h2>
+      <div style={styles.appContainer}>
+        <header style={styles.header}>
+          <div style={styles.logo} onClick={() => window.location.href = '/'}>
+            DEN AGORIAANSE CONNECTIES
+          </div>
+        </header>
 
-            {createdUrl ? (
-              <div style={styles.successBox}>
-                <h3 style={{ margin: '0 0 0.5rem 0', color: '#166534' }}>Puzzel succesvol aangemaakt!</h3>
-                <p style={{ margin: '0 0 1rem 0' }}>Deel deze link met je klasgenoten:</p>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input style={styles.inputField} value={createdUrl} readOnly />
-                  <button style={styles.primaryBtn} onClick={() => navigator.clipboard.writeText(createdUrl)}>Kopieer</button>
-                </div>
-                <button style={{ ...styles.secondaryBtn, marginTop: '1rem', width: '100%' }} onClick={() => window.location.href = createdUrl}>
-                  Speel Puzzel Nu
-                </button>
+        <main style={styles.mainContent}>
+          
+          {/* --- MODUS 1: MAKER --- */}
+          {mode === 'create' && (
+            <div style={styles.glassCard}>
+              <div style={styles.sectionHeader}>
+                <h2 style={styles.sectionTitle}>Maak een Nieuwe Puzzel</h2>
               </div>
-            ) : (
-              <form onSubmit={handleCreatePuzzle}>
-                <div style={styles.grid2}>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Titel van de Puzzel</label>
-                    <input style={styles.inputField} required value={title} onChange={(e) => setTitle(e.target.value)} />
+
+              {createdUrl ? (
+                <div style={styles.successBox}>
+                  <h3 style={{ margin: '0 0 0.5rem 0', color: '#15803d', fontWeight: 800 }}>Puzzel succesvol aangemaakt! 🎉</h3>
+                  <p style={{ margin: '0 0 1rem 0', color: '#334155' }}>Deel deze link direct om de puzzel te laten spelen:</p>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input style={styles.glassInput} value={createdUrl} readOnly />
+                    <button style={{ ...styles.primaryBtn, width: 'auto', marginTop: 0 }} onClick={() => navigator.clipboard.writeText(createdUrl)}>Kopieer</button>
                   </div>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Jouw Naam (Maker)</label>
-                    <input style={styles.inputField} required value={author} onChange={(e) => setAuthor(e.target.value)} />
-                  </div>
+                  <button style={{ ...styles.secondaryBtn, marginTop: '1.25rem', width: '100%' }} onClick={() => window.location.href = createdUrl}>
+                    Speel Puzzel Nu
+                  </button>
                 </div>
-
-                <div style={{ marginTop: '1.5rem' }}>
-                  <label style={{ ...styles.label, fontSize: '1rem', marginBottom: '0.75rem' }}>4 Categorieën & Woorden</label>
-
-                  {groups.map((group, gIdx) => (
-                    <div key={gIdx} style={styles.categoryBox}>
-                      <div style={styles.categoryHeader}>
-                        <input
-                          style={{ ...styles.inputField, width: '70%', fontWeight: 'bold' }}
-                          required
-                          value={group.category}
-                          onChange={(e) => {
-                            const newGroups = [...groups];
-                            newGroups[gIdx].category = e.target.value;
-                            setGroups(newGroups);
-                          }}
-                        />
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
-                          Kleur:
-                          <input
-                            type="color"
-                            style={styles.colorPicker}
-                            value={group.color}
-                            onChange={(e) => {
-                              const newGroups = [...groups];
-                              newGroups[gIdx].color = e.target.value;
-                              setGroups(newGroups);
-                            }}
-                          />
-                        </div>
-                      </div>
-
-                      <div style={styles.grid4}>
-                        {group.words.map((word, wIdx) => (
-                          <input
-                            key={wIdx}
-                            style={styles.inputField}
-                            required
-                            value={word}
-                            onChange={(e) => {
-                              const newGroups = [...groups];
-                              newGroups[gIdx].words[wIdx] = e.target.value;
-                              setGroups(newGroups);
-                            }}
-                          />
-                        ))}
-                      </div>
+              ) : (
+                <form onSubmit={handleCreatePuzzle}>
+                  <div style={styles.grid2}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>TITEL VAN DE PUZZEL</label>
+                      <input 
+                        style={styles.glassInput} 
+                        required 
+                        value={title} 
+                        onChange={(e) => setTitle(e.target.value)} 
+                      />
                     </div>
-                  ))}
-                </div>
-
-                <div style={{ ...styles.grid2, marginTop: '1.5rem' }}>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Timer in seconden (optioneel)</label>
-                    <input
-                      type="number"
-                      style={styles.inputField}
-                      value={timerSeconds}
-                      onChange={(e) => setTimerSeconds(e.target.value ? Number(e.target.value) : '')}
-                    />
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>JOUW NAAM (MAKER)</label>
+                      <input 
+                        style={styles.glassInput} 
+                        required 
+                        value={author} 
+                        onChange={(e) => setAuthor(e.target.value)} 
+                      />
+                    </div>
                   </div>
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Hints (optioneel)</label>
-                    {hints.map((hint, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                        <input
-                          style={styles.inputField}
-                          value={hint}
-                          onChange={(e) => {
-                            const newHints = [...hints];
-                            newHints[idx] = e.target.value;
-                            setHints(newHints);
-                          }}
-                        />
-                        {idx === hints.length - 1 && (
-                          <button
-                            type="button"
-                            style={styles.addHintBtn}
-                            onClick={() => setHints([...hints, ''])}
-                          >
-                            +
-                          </button>
-                        )}
+
+                  <div style={{ marginTop: '1.75rem' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+                      <label style={{ ...styles.label, fontSize: '1.1rem', color: '#0f172a', fontWeight: 800 }}>
+                        4 CATEGORIEËN & WOORDEN
+                      </label>
+                    </div>
+
+                    {groups.map((group, gIdx) => (
+                      <div key={gIdx} style={{ ...styles.categoryBox, borderLeft: `5px solid ${group.color}` }}>
+                        <div style={styles.categoryHeader}>
+                          <input
+                            style={{ ...styles.glassInput, width: '65%', fontWeight: '700' }}
+                            required
+                            value={group.category}
+                            onChange={(e) => {
+                              const newGroups = [...groups];
+                              newGroups[gIdx].category = e.target.value;
+                              setGroups(newGroups);
+                            }}
+                          />
+                          
+                          {/* Kleur Badge Indicator */}
+                          <div style={styles.colorBadgeWrapper}>
+                            <span>Kleur:</span>
+                            <div style={{ ...styles.colorSwatch, backgroundColor: group.color }}></div>
+                            <input
+                              type="color"
+                              style={styles.colorPicker}
+                              value={group.color}
+                              onChange={(e) => {
+                                const newGroups = [...groups];
+                                newGroups[gIdx].color = e.target.value;
+                                setGroups(newGroups);
+                              }}
+                            />
+                          </div>
+                        </div>
+
+                        <div style={styles.grid4}>
+                          {group.words.map((word, wIdx) => (
+                            <input
+                              key={wIdx}
+                              style={{ ...styles.glassInput, fontSize: '0.9rem', textAlign: 'center' }}
+                              required
+                              value={word}
+                              onChange={(e) => {
+                                const newGroups = [...groups];
+                                newGroups[gIdx].words[wIdx] = e.target.value;
+                                setGroups(newGroups);
+                              }}
+                            />
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
-                </div>
 
-                <button type="submit" style={styles.primaryBtn}>
-                  Verwissel de connectie en krijg een link
-                </button>
-              </form>
-            )}
-          </div>
-        )}
-
-        {/* --- MODUS 2: SPEELVELD --- */}
-        {mode === 'play' && puzzle && (
-          <div style={{ maxWidth: '650px', margin: '0 auto' }}>
-            {!hasEnteredName ? (
-              <div style={{ ...styles.cardContainer, textAlign: 'center', maxWidth: '450px', margin: '2rem auto' }}>
-                <h2 style={{ margin: '0 0 0.5rem 0' }}>{puzzle.title}</h2>
-                <p style={{ color: '#64748b', marginTop: 0 }}>Gemaakt door: <strong>{puzzle.author}</strong></p>
-
-                <div style={{ margin: '1.5rem 0' }}>
-                  <label style={{ ...styles.label, textAlign: 'left' }}>Vul je naam in voor het leaderboard:</label>
-                  <input
-                    style={{ ...styles.inputField, fontSize: '1.1rem', padding: '0.75rem' }}
-                    value={playerName}
-                    onChange={(e) => setPlayerName(e.target.value)}
-                  />
-                </div>
-
-                <button
-                  disabled={!playerName.trim()}
-                  onClick={() => setHasEnteredName(true)}
-                  style={{ ...styles.primaryBtn, marginTop: 0 }}
-                >
-                  Start Spel
-                </button>
-              </div>
-            ) : (
-              <div>
-                <div style={styles.gameHeaderBar}>
-                  <div>
-                    <h2 style={{ margin: 0 }}>{puzzle.title}</h2>
-                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Maker: {puzzle.author}</span>
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                    <div style={styles.statBadge}>
-                      Tijd: <strong>{seconds}s</strong> {puzzle.timer_seconds ? `/ ${puzzle.timer_seconds}s` : ''}
+                  <div style={{ ...styles.grid2, marginTop: '1.5rem' }}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Timer in seconden (optioneel)</label>
+                      <input
+                        type="number"
+                        style={styles.glassInput}
+                        value={timerSeconds}
+                        onChange={(e) => setTimerSeconds(e.target.value ? Number(e.target.value) : '')}
+                      />
                     </div>
-                    <div style={styles.statBadge}>
-                      Fouten: <strong>{mistakes}</strong>
-                    </div>
-                  </div>
-                </div>
-
-                {puzzle.hints.length > 0 && (
-                  <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-                    {hintsShown < puzzle.hints.length && (
-                      <button style={styles.secondaryBtn} onClick={() => setHintsShown(hintsShown + 1)}>
-                        Vraag Hint ({hintsShown}/{puzzle.hints.length})
-                      </button>
-                    )}
-                    <div style={{ marginTop: '0.5rem' }}>
-                      {puzzle.hints.slice(0, hintsShown).map((h, i) => (
-                        <div key={i} style={styles.hintCard}>Hint {i + 1}: {h}</div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Hints (optioneel)</label>
+                      {hints.map((hint, idx) => (
+                        <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                          <input
+                            style={styles.glassInput}
+                            value={hint}
+                            onChange={(e) => {
+                              const newHints = [...hints];
+                              newHints[idx] = e.target.value;
+                              setHints(newHints);
+                            }}
+                          />
+                          {idx === hints.length - 1 && (
+                            <button
+                              type="button"
+                              style={styles.addHintBtn}
+                              onClick={() => setHints([...hints, ''])}
+                            >
+                              +
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>
-                )}
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                  {solvedGroups.map((group, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        backgroundColor: group.color,
-                        padding: '1.25rem',
-                        borderRadius: '12px',
-                        textAlign: 'center',
-                        color: '#0f172a'
-                      }}
-                    >
-                      <h3 style={{ margin: '0 0 0.25rem 0', textTransform: 'uppercase' }}>{group.category}</h3>
-                      <p style={{ margin: 0, fontWeight: 600 }}>{group.words.join(', ')}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {!isGameOver && (
-                  <>
-                    <div style={styles.wordGrid}>
-                      {remainingWords.map((word, idx) => {
-                        const isSelected = selectedWords.includes(word);
-                        return (
-                          <button
-                            key={idx}
-                            onClick={() => handleWordClick(word)}
-                            style={{
-                              ...styles.wordCard,
-                              backgroundColor: isSelected ? '#0f172a' : '#ffffff',
-                              color: isSelected ? '#ffffff' : '#0f172a',
-                              borderColor: isSelected ? '#0f172a' : '#e2e8f0'
-                            }}
-                          >
-                            {word}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1.5rem' }}>
-                      <button style={styles.secondaryBtn} onClick={shuffleWords}>Schudden</button>
-                      <button style={styles.secondaryBtn} onClick={() => setSelectedWords([])} disabled={selectedWords.length === 0}>
-                        Deselecteer alles
-                      </button>
-                      <button
-                        style={{ ...styles.primaryBtn, width: 'auto', marginTop: 0 }}
-                        disabled={selectedWords.length !== 4}
-                        onClick={submitGuess}
-                      >
-                        Verstuur ({selectedWords.length}/4)
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* --- MODUS 3: LEADERBOARD --- */}
-        {mode === 'leaderboard' && (
-          <div style={{ ...styles.cardContainer, maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Leaderboard - Top 10</h2>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              {leaderboard.map((entry, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    padding: '0.85rem 1rem',
-                    backgroundColor: idx === 0 ? '#fef9c3' : '#ffffff',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
-                    fontWeight: idx === 0 ? 'bold' : 'normal'
-                  }}
-                >
-                  <span>#{idx + 1} {entry.player_name}</span>
-                  <span style={{ color: '#64748b' }}>{entry.time_taken_seconds}s | {entry.mistakes} fouten</span>
-                </div>
-              ))}
+                  <button type="submit" style={styles.primaryBtn}>
+                    Maak Connecties Puzzel Aan
+                  </button>
+                </form>
+              )}
             </div>
+          )}
 
-            <button style={styles.primaryBtn} onClick={() => window.location.href = '/'}>
-              Maak Zelf Een Connectie
-            </button>
-          </div>
-        )}
+          {/* --- MODUS 2: SPEELVELD --- */}
+          {mode === 'play' && puzzle && (
+            <div style={{ maxWidth: '650px', margin: '0 auto' }}>
+              {!hasEnteredName ? (
+                <div style={{ ...styles.glassCard, textAlign: 'center', maxWidth: '450px', margin: '2rem auto' }}>
+                  <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.75rem', fontWeight: 800 }}>{puzzle.title}</h2>
+                  <p style={{ color: '#64748b', marginTop: 0, fontSize: '0.95rem' }}>Gemaakt door: <strong style={{ color: '#0f172a' }}>{puzzle.author}</strong></p>
 
-      </main>
-    </div>
+                  <div style={{ margin: '1.75rem 0' }}>
+                    <label style={{ ...styles.label, textAlign: 'left' }}>Vul je naam in voor het leaderboard:</label>
+                    <input
+                      style={{ ...styles.glassInput, fontSize: '1.1rem', padding: '0.85rem 1rem', textAlign: 'center' }}
+                      value={playerName}
+                      onChange={(e) => setPlayerName(e.target.value)}
+                    />
+                  </div>
+
+                  <button
+                    disabled={!playerName.trim()}
+                    onClick={() => setHasEnteredName(true)}
+                    style={{ ...styles.primaryBtn, marginTop: 0, opacity: playerName.trim() ? 1 : 0.6 }}
+                  >
+                    Start Spel
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={styles.gameHeaderBar}>
+                    <div>
+                      <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>{puzzle.title}</h2>
+                      <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Maker: {puzzle.author}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      <div style={styles.statBadge}>
+                        ⏱️ <strong>{seconds}s</strong> {puzzle.timer_seconds ? `/ ${puzzle.timer_seconds}s` : ''}
+                      </div>
+                      <div style={{ ...styles.statBadge, backgroundColor: mistakes > 0 ? '#fef2f2' : 'rgba(255,255,255,0.8)', color: mistakes > 0 ? '#dc2626' : '#0f172a' }}>
+                        ❌ Fouten: <strong>{mistakes}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  {puzzle.hints.length > 0 && (
+                    <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+                      {hintsShown < puzzle.hints.length && (
+                        <button style={styles.secondaryBtn} onClick={() => setHintsShown(hintsShown + 1)}>
+                          💡 Vraag Hint ({hintsShown}/{puzzle.hints.length})
+                        </button>
+                      )}
+                      <div style={{ marginTop: '0.5rem' }}>
+                        {puzzle.hints.slice(0, hintsShown).map((h, i) => (
+                          <div key={i} style={styles.hintCard}>Hint {i + 1}: {h}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                    {solvedGroups.map((group, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          backgroundColor: group.color,
+                          padding: '1.25rem',
+                          borderRadius: '14px',
+                          textAlign: 'center',
+                          color: '#0f172a',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                        }}
+                      >
+                        <h3 style={{ margin: '0 0 0.25rem 0', textTransform: 'uppercase', fontSize: '1.05rem', letterSpacing: '0.5px' }}>{group.category}</h3>
+                        <p style={{ margin: 0, fontWeight: 600 }}>{group.words.join(', ')}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {!isGameOver && (
+                    <>
+                      <div style={styles.wordGrid}>
+                        {remainingWords.map((word, idx) => {
+                          const isSelected = selectedWords.includes(word);
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() => handleWordClick(word)}
+                              style={{
+                                ...styles.wordCard,
+                                backgroundColor: isSelected ? '#0f172a' : 'rgba(255, 255, 255, 0.85)',
+                                color: isSelected ? '#ffffff' : '#0f172a',
+                                borderColor: isSelected ? '#0f172a' : 'rgba(203, 213, 225, 0.8)',
+                                transform: isSelected ? 'scale(0.98)' : 'scale(1)'
+                              }}
+                            >
+                              {word}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginTop: '1.75rem' }}>
+                        <button style={styles.secondaryBtn} onClick={shuffleWords}>🔀 Schudden</button>
+                        <button style={styles.secondaryBtn} onClick={() => setSelectedWords([])} disabled={selectedWords.length === 0}>
+                          Deselecteer Alles
+                        </button>
+                        <button
+                          style={{ ...styles.primaryBtn, width: 'auto', marginTop: 0, padding: '0.75rem 1.75rem' }}
+                          disabled={selectedWords.length !== 4}
+                          onClick={submitGuess}
+                        >
+                          Verstuur ({selectedWords.length}/4)
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* --- MODUS 3: LEADERBOARD --- */}
+          {mode === 'leaderboard' && (
+            <div style={{ ...styles.glassCard, maxWidth: '550px', margin: '0 auto' }}>
+              <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+                <h2 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800 }}>🏆 Leaderboard</h2>
+                <p style={{ color: '#64748b', margin: '0.25rem 0 0 0' }}>Top resultaten voor deze puzzel</p>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.75rem' }}>
+                {leaderboard.map((entry, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.9rem 1.25rem',
+                      backgroundColor: idx === 0 ? '#fefce8' : 'rgba(255, 255, 255, 0.9)',
+                      borderRadius: '12px',
+                      border: idx === 0 ? '2px solid #fde047' : '1px solid rgba(226, 232, 240, 0.8)',
+                      fontWeight: idx === 0 ? '700' : '500'
+                    }}
+                  >
+                    <span style={{ fontSize: '1.05rem' }}>
+                      {idx === 0 ? '🥇 ' : idx === 1 ? '🥈 ' : idx === 2 ? '🥉 ' : `#${idx + 1} `} 
+                      {entry.player_name}
+                    </span>
+                    <span style={{ color: '#64748b', fontSize: '0.9rem' }}>
+                      ⏱️ {entry.time_taken_seconds}s | ❌ {entry.mistakes} fouten
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <button style={styles.primaryBtn} onClick={() => window.location.href = '/'}>
+                Maak Zelf Een Puzzel
+              </button>
+            </div>
+          )}
+
+        </main>
+      </div>
+    </>
   );
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
   appContainer: {
-    backgroundColor: '#ffffff',
+    background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
     minHeight: '100vh',
+    width: '100%',
+    margin: 0,
+    padding: 0,
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     color: '#0f172a'
   },
   header: {
     width: '100%',
-    backgroundColor: '#ffffff',
-    borderBottom: '2px solid #f1f5f9',
-    padding: '1.5rem 2rem',
-    textAlign: 'center'
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    backdropFilter: 'blur(12px)',
+    borderBottom: '3px solid #ea580c',
+    padding: '1.75rem 2rem 1.25rem 2rem',
+    textAlign: 'center',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
   },
   logo: {
     color: '#ea580c',
@@ -464,24 +513,32 @@ const styles: { [key: string]: React.CSSProperties } = {
     fontWeight: 900,
     letterSpacing: '-0.5px',
     textTransform: 'uppercase',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    lineHeight: '1.1'
   },
   mainContent: {
     maxWidth: '850px',
     margin: '0 auto',
-    padding: '2rem 1.5rem'
+    padding: '2.5rem 1.5rem'
   },
-  cardContainer: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #e2e8f0',
-    borderRadius: '16px',
-    padding: '2rem',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)'
+  glassCard: {
+    background: 'rgba(255, 255, 255, 0.75)',
+    backdropFilter: 'blur(16px)',
+    border: '1px solid rgba(255, 255, 255, 0.9)',
+    borderRadius: '20px',
+    padding: '2.25rem',
+    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)'
+  },
+  sectionHeader: {
+    marginBottom: '1.75rem',
+    borderBottom: '1px solid rgba(203, 213, 225, 0.6)',
+    paddingBottom: '1rem',
+    textAlign: 'center'
   },
   sectionTitle: {
-    fontSize: '1.5rem',
+    fontSize: '1.6rem',
     color: '#0f172a',
-    marginBottom: '1.5rem',
+    margin: 0,
     fontWeight: 800
   },
   formGroup: {
@@ -490,36 +547,38 @@ const styles: { [key: string]: React.CSSProperties } = {
   label: {
     display: 'block',
     fontWeight: 700,
-    fontSize: '0.85rem',
-    color: '#0f172a',
+    fontSize: '0.8rem',
+    color: '#334155',
     marginBottom: '0.4rem',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
   },
-  inputField: {
+  glassInput: {
     width: '100%',
-    padding: '0.75rem 1rem',
-    borderRadius: '8px',
-    border: '2px solid #cbd5e1',
-    backgroundColor: '#ffffff',
+    padding: '0.8rem 1rem',
+    borderRadius: '12px',
+    border: '1px solid rgba(203, 213, 225, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     color: '#0f172a',
-    fontSize: '1rem',
-    outline: 'none'
+    fontSize: '0.95rem',
+    outline: 'none',
+    boxSizing: 'border-box',
+    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.02)'
   },
   grid2: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '1rem'
+    gap: '1.25rem'
   },
   grid4: {
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '0.5rem'
+    gap: '0.65rem'
   },
   categoryBox: {
-    backgroundColor: '#ffffff',
-    border: '1px solid #cbd5e1',
-    borderRadius: '12px',
+    backgroundColor: 'rgba(255, 255, 255, 0.55)',
+    border: '1px solid rgba(226, 232, 240, 0.8)',
+    borderRadius: '16px',
     padding: '1.25rem',
     marginBottom: '1.25rem'
   },
@@ -527,43 +586,65 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '0.75rem'
+    marginBottom: '0.85rem'
+  },
+  colorBadgeWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.6rem',
+    fontWeight: 700,
+    fontSize: '0.85rem',
+    color: '#475569',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    padding: '0.4rem 0.75rem',
+    borderRadius: '10px',
+    border: '1px solid #e2e8f0'
+  },
+  colorSwatch: {
+    width: '18px',
+    height: '18px',
+    borderRadius: '50%',
+    border: '2px solid #ffffff',
+    boxShadow: '0 0 0 1px rgba(0,0,0,0.15)'
   },
   colorPicker: {
     border: 'none',
-    width: '32px',
-    height: '32px',
-    borderRadius: '50%',
-    cursor: 'pointer'
+    background: 'transparent',
+    width: '24px',
+    height: '24px',
+    cursor: 'pointer',
+    padding: 0
   },
   addHintBtn: {
     backgroundColor: '#0f172a',
     color: '#ffffff',
     border: 'none',
     padding: '0 1.25rem',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontWeight: 800,
     fontSize: '1.2rem',
     cursor: 'pointer'
   },
   primaryBtn: {
-    backgroundColor: '#ea580c',
+    background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
     color: '#ffffff',
-    border: 'none',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
     padding: '1rem 1.5rem',
-    borderRadius: '10px',
-    fontWeight: 700,
+    borderRadius: '12px',
+    fontWeight: 800,
     fontSize: '1rem',
     cursor: 'pointer',
     width: '100%',
-    marginTop: '1.5rem'
+    marginTop: '1.5rem',
+    boxShadow: '0 8px 20px rgba(234, 88, 12, 0.25)',
+    letterSpacing: '0.3px'
   },
   secondaryBtn: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     color: '#0f172a',
-    border: '2px solid #0f172a',
-    padding: '0.6rem 1rem',
-    borderRadius: '8px',
+    border: '1px solid #cbd5e1',
+    padding: '0.65rem 1.2rem',
+    borderRadius: '10px',
     fontWeight: 700,
     fontSize: '0.85rem',
     cursor: 'pointer'
@@ -576,7 +657,7 @@ const styles: { [key: string]: React.CSSProperties } = {
   wordCard: {
     aspectRatio: '1.3',
     border: '2px solid',
-    borderRadius: '10px',
+    borderRadius: '14px',
     fontSize: '0.95rem',
     fontWeight: 800,
     cursor: 'pointer',
@@ -585,35 +666,40 @@ const styles: { [key: string]: React.CSSProperties } = {
     alignItems: 'center',
     justifyContent: 'center',
     padding: '0.5rem',
-    textAlign: 'center'
+    textAlign: 'center',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+    backdropFilter: 'blur(8px)'
   },
   gameHeaderBar: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottom: '2px solid #e2e8f0',
+    borderBottom: '2px solid rgba(226, 232, 240, 0.8)',
     paddingBottom: '1rem',
-    marginBottom: '1rem'
+    marginBottom: '1.25rem'
   },
   statBadge: {
-    backgroundColor: '#f1f5f9',
-    padding: '0.4rem 0.75rem',
-    borderRadius: '6px',
-    fontSize: '0.9rem'
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    padding: '0.5rem 0.85rem',
+    borderRadius: '10px',
+    fontSize: '0.9rem',
+    fontWeight: 500,
+    border: '1px solid rgba(226, 232, 240, 0.8)'
   },
   hintCard: {
     backgroundColor: '#fef9c3',
     color: '#854d0e',
     padding: '0.6rem 1rem',
-    borderRadius: '8px',
+    borderRadius: '10px',
     fontSize: '0.9rem',
     display: 'inline-block',
-    margin: '0.25rem'
+    margin: '0.25rem',
+    border: '1px solid #fde047'
   },
   successBox: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: 'rgba(240, 253, 244, 0.85)',
     border: '1px solid #bbf7d0',
-    padding: '1.5rem',
-    borderRadius: '12px'
+    padding: '1.75rem',
+    borderRadius: '14px'
   }
 };
