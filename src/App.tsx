@@ -17,7 +17,7 @@ type Puzzle = {
 
 export default function App() {
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
-  const [mode, setMode] = useState<'create' | 'play' | 'leaderboard'>('create');
+  const [mode, setMode] = useState<'create' | 'play'>('create');
 
   // Spelersstatus
   const [playerName, setPlayerName] = useState('');
@@ -30,6 +30,8 @@ export default function App() {
   const [seconds, setSeconds] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [showLeaderboardModal, setShowLeaderboardModal] = useState(false);
+  const [oneAwayMessage, setOneAwayMessage] = useState(false);
 
   // Maker Formulier Status
   const [title, setTitle] = useState('');
@@ -118,6 +120,9 @@ export default function App() {
   async function submitGuess() {
     if (!puzzle || selectedWords.length !== 4) return;
 
+    setOneAwayMessage(false);
+
+    // Controleer of de selectie exact matcht
     const matchedGroup = puzzle.groups_data.find((g) =>
       g.words.every((w) => selectedWords.includes(w))
     );
@@ -140,24 +145,36 @@ export default function App() {
             mistakes
           })
         });
-        loadLeaderboard(puzzle.id);
+        await loadLeaderboard(puzzle.id);
+        setShowLeaderboardModal(true); // Pop-up tonen
       }
     } else {
+      // Check voor "1 away" (3 van de 4 woorden uit dezelfde categorie)
+      const isOneAway = puzzle.groups_data.some((g) => {
+        const matchCount = g.words.filter((w) => selectedWords.includes(w)).length;
+        return matchCount === 3;
+      });
+
+      if (isOneAway) {
+        setOneAwayMessage(true);
+      }
+
       setMistakes(mistakes + 1);
-      alert('Foutieve combinatie!');
     }
   }
 
   async function loadLeaderboard(id: string) {
-    const res = await fetch(`/api/leaderboard/${id}`);
-    const data = await res.json();
-    setLeaderboard(data);
-    setMode('leaderboard');
+    try {
+      const res = await fetch(`/api/leaderboard/${id}`);
+      const data = await res.json();
+      setLeaderboard(data);
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   return (
     <>
-      {/* CSS Reset om witteranden in de hoeken van de browser definitief te slopen */}
       <style>{`
         * { box-sizing: border-box; }
         html, body, #root {
@@ -241,7 +258,6 @@ export default function App() {
                             }}
                           />
                           
-                          {/* Kleur Badge Indicator */}
                           <div style={styles.colorBadgeWrapper}>
                             <span>Kleur:</span>
                             <div style={{ ...styles.colorSwatch, backgroundColor: group.color }}></div>
@@ -355,7 +371,16 @@ export default function App() {
                       <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Maker: {puzzle.author}</span>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <button 
+                        style={styles.secondaryBtn} 
+                        onClick={async () => {
+                          await loadLeaderboard(puzzle.id);
+                          setShowLeaderboardModal(true);
+                        }}
+                      >
+                        🏆 Stand
+                      </button>
                       <div style={styles.statBadge}>
                         ⏱️ <strong>{seconds}s</strong> {puzzle.timer_seconds ? `/ ${puzzle.timer_seconds}s` : ''}
                       </div>
@@ -364,6 +389,13 @@ export default function App() {
                       </div>
                     </div>
                   </div>
+
+                  {/* 1 AWAY MELDING */}
+                  {oneAwayMessage && (
+                    <div style={styles.oneAwayToast}>
+                      ⚠️ Nog 1 verwijderd! (3 van de 4 klopten)
+                    </div>
+                  )}
 
                   {puzzle.hints.length > 0 && (
                     <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
@@ -410,10 +442,10 @@ export default function App() {
                               onClick={() => handleWordClick(word)}
                               style={{
                                 ...styles.wordCard,
-                                backgroundColor: isSelected ? '#0f172a' : 'rgba(255, 255, 255, 0.85)',
-                                color: isSelected ? '#ffffff' : '#0f172a',
+                                backgroundColor: isSelected ? '#cbd5e1' : 'rgba(255, 255, 255, 0.85)',
+                                color: '#000000', // Altijd duidelijke zwarte tekst!
                                 borderColor: isSelected ? '#0f172a' : 'rgba(203, 213, 225, 0.8)',
-                                transform: isSelected ? 'scale(0.98)' : 'scale(1)'
+                                transform: isSelected ? 'scale(0.96)' : 'scale(1)'
                               }}
                             >
                               {word}
@@ -442,43 +474,51 @@ export default function App() {
             </div>
           )}
 
-          {/* --- MODUS 3: LEADERBOARD --- */}
-          {mode === 'leaderboard' && (
-            <div style={{ ...styles.glassCard, maxWidth: '550px', margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-                <h2 style={{ margin: 0, fontSize: '1.75rem', fontWeight: 800 }}>🏆 Leaderboard</h2>
-                <p style={{ color: '#64748b', margin: '0.25rem 0 0 0' }}>Top resultaten voor deze puzzel</p>
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1.75rem' }}>
-                {leaderboard.map((entry, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '0.9rem 1.25rem',
-                      backgroundColor: idx === 0 ? '#fefce8' : 'rgba(255, 255, 255, 0.9)',
-                      borderRadius: '12px',
-                      border: idx === 0 ? '2px solid #fde047' : '1px solid rgba(226, 232, 240, 0.8)',
-                      fontWeight: idx === 0 ? '700' : '500'
-                    }}
-                  >
-                    <span style={{ fontSize: '1.05rem' }}>
-                      {idx === 0 ? '🥇 ' : idx === 1 ? '🥈 ' : idx === 2 ? '🥉 ' : `#${idx + 1} `} 
-                      {entry.player_name}
-                    </span>
-                    <span style={{ color: '#64748b', fontSize: '0.9rem' }}>
-                      ⏱️ {entry.time_taken_seconds}s | ❌ {entry.mistakes} fouten
-                    </span>
-                  </div>
-                ))}
-              </div>
+          {/* --- LEADERBOARD POP-UP MODAL --- */}
+          {showLeaderboardModal && (
+            <div style={styles.modalOverlay}>
+              <div style={styles.modalCard}>
+                <div style={styles.modalHeader}>
+                  <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800 }}>🏆 Leaderboard</h2>
+                  <button style={styles.closeBtn} onClick={() => setShowLeaderboardModal(false)}>✕</button>
+                </div>
 
-              <button style={styles.primaryBtn} onClick={() => window.location.href = '/'}>
-                Maak Zelf Een Puzzel
-              </button>
+                <p style={{ color: '#64748b', marginTop: 0, fontSize: '0.9rem', textAlign: 'center' }}>Top resultaten voor deze puzzel</p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', margin: '1.25rem 0' }}>
+                  {leaderboard.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: '#64748b' }}>Nog geen scores bekend.</p>
+                  ) : (
+                    leaderboard.map((entry, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '0.8rem 1rem',
+                          backgroundColor: idx === 0 ? '#fefce8' : 'rgba(248, 250, 252, 0.9)',
+                          borderRadius: '12px',
+                          border: idx === 0 ? '2px solid #fde047' : '1px solid rgba(226, 232, 240, 0.8)',
+                          fontWeight: idx === 0 ? '700' : '500'
+                        }}
+                      >
+                        <span style={{ fontSize: '0.95rem' }}>
+                          {idx === 0 ? '🥇 ' : idx === 1 ? '🥈 ' : idx === 2 ? '🥉 ' : `#${idx + 1} `} 
+                          {entry.player_name}
+                        </span>
+                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>
+                          ⏱️ {entry.time_taken_seconds}s | ❌ {entry.mistakes} fouten
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <button style={styles.primaryBtn} onClick={() => window.location.href = '/'}>
+                  Maak Zelf Een Nieuwe Puzzel
+                </button>
+              </div>
             </div>
           )}
 
@@ -668,7 +708,8 @@ const styles: { [key: string]: React.CSSProperties } = {
     padding: '0.5rem',
     textAlign: 'center',
     boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-    backdropFilter: 'blur(8px)'
+    backdropFilter: 'blur(8px)',
+    transition: 'all 0.15s ease'
   },
   gameHeaderBar: {
     display: 'flex',
@@ -701,5 +742,51 @@ const styles: { [key: string]: React.CSSProperties } = {
     border: '1px solid #bbf7d0',
     padding: '1.75rem',
     borderRadius: '14px'
+  },
+  oneAwayToast: {
+    backgroundColor: '#fff7ed',
+    color: '#c2410c',
+    border: '1px solid #ffedd5',
+    padding: '0.75rem 1rem',
+    borderRadius: '12px',
+    textAlign: 'center',
+    fontWeight: 700,
+    marginBottom: '1.25rem'
+  },
+  modalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    backdropFilter: 'blur(6px)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+    padding: '1rem'
+  },
+  modalCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: '20px',
+    padding: '1.75rem',
+    width: '100%',
+    maxWidth: '480px',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+  },
+  modalHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '0.25rem'
+  },
+  closeBtn: {
+    background: 'transparent',
+    border: 'none',
+    fontSize: '1.25rem',
+    fontWeight: 800,
+    cursor: 'pointer',
+    color: '#64748b'
   }
 };
